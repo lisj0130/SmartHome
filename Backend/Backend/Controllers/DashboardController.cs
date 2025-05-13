@@ -27,9 +27,6 @@ namespace Backend.Controllers
         public IActionResult OutsideTemp() { }
 
         //Skapa en algoritm som beräknar elförbrukningen. Ta antal lampor, inomhustemp och utomhustemp i beaktning.
-        public IActionResult ElectricityConsumption() 
-        {
-            // Du förburkar just nu såhär mycket (return string)
-        }
+        public IActionResult ElectricityConsumption() { }
     }
 }
