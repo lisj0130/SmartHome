@@ -1,5 +1,8 @@
 using System.Diagnostics;
 using Backend.Models;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 // Test V
@@ -24,7 +27,30 @@ namespace Backend.Controllers
         public IActionResult InsideTemp() { }
 
         //Hämta temperaturen via web api och returnera den till vyn
-        public IActionResult OutsideTemp() { }
+        public async Task<IActionResult> OutsideTemp() 
+        {
+            string apiKey = "141d0705b70227498aac566b4b862bdb";
+            string city = "Umeå";
+            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
+
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    var response = await client.GetStringAsync(url);
+
+                    JObject weatherData = JObject.Parse(response);
+                    double temperature = (double)weatherData["main"]["temp"];
+
+                    return Json(new { temperature = temperature, city = city });
+                }
+                catch (HttpRequestException e)
+                {
+                    return StatusCode(500, $"Fel vid hämtning av temperatur: {e.Message}");
+                }
+            }
+
+        }
 
         //Skapa en algoritm som beräknar elförbrukningen. Ta antal lampor, inomhustemp och utomhustemp i beaktning.
         public IActionResult ElectricityConsumption() 
