@@ -28,6 +28,16 @@ namespace ChatAppBackend.Hubs
             return base.OnDisconnectedAsync(exception);
         }
 
+        public async Task TurnOnLight(int id)
+        {
+            await Clients.All.SendAsync("TurnOnLight", id, 1);
+        }
+
+        public async Task TurnOffLight(int id)
+        {
+            await Clients.All.SendAsync("TurnOffLight", id, 0);
+        }
+
         //Lägg till eftersom
     }
 }
