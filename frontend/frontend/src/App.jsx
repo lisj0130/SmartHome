@@ -4,6 +4,8 @@ import FloorWalls from './components/FloorAndWalls';
 import Lights from './components/Lights';
 import Plants from './components/Plants';
 import Sofa from './components/Sofa';
+import Tv from './components/Tv';
+import TvTable from './components/TvTable';
 
 function App() {
     return (
@@ -11,8 +13,10 @@ function App() {
             <OrbitControls />
             <FloorWalls />
             <Lights />
-            <Plants />
+            {/*<Plants />*/}
             <Sofa />
+            <TvTable />
+            <Tv />
         </Canvas>
     );
 }
