@@ -10,7 +10,7 @@ export default function FloorAndWalls() {
     return (
         <>
             {/* Golvet */}
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.25, 0]}>
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2, 0]}>
                 <planeGeometry args={[20, 20]} />
                 <meshStandardMaterial map={woodTexture} />
             </mesh>
