@@ -1,7 +1,12 @@
 import { useGLTF } from '@react-three/drei';
+import { useEffect } from 'react';
 
 export default function Plants() {
-    const { scene } = useGLTF('/models/plants.glb'); // VIKTIGT: absolut sökväg från public/
+    const { scene } = useGLTF('/models/plants.gltf'); // VIKTIGT: absolut sökväg från public/
 
-    return <primitive object={scene} scale={2} position={[-8, -2, 0]} />;
+    useEffect(() => {
+        console.log(scene); // Inspektera detta i DevTools för att hitta luckans namn
+    }, [scene]);
+
+    return <primitive object={scene} scale={5} position={[-8, -2, 4]} />;
 }
