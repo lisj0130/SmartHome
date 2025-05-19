@@ -36,7 +36,9 @@
 //}
 
 
+using Backend.Data;
 using Backend.Hubs;
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend
 {
@@ -48,6 +50,7 @@ namespace Backend
 
             builder.Services.AddControllers();
             builder.Services.AddSignalR();
+            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             builder.Services.AddCors(options =>
             {
