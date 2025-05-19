@@ -9,14 +9,14 @@ import Plants from './components/Plants';
 import Sofa from './components/Sofa';
 import Tv from './components/Tv';
 import TvTable from './components/TvTable';
-import LampTable from './components/LampTable';
+//import LampTable from './components/LampTable';
 import CoffeeTable from './components/CoffeeTable';
 import CoffeePlant from './components/CoffeePlant';
 import CoffeePot from './components/CoffeePot';
 import Rug from './components/Rug';
 import Standlight from './components/Standlight';
 import Shelf from './components/Shelf';
-import Lamp from './components/Lamp';
+//import Lamp from './components/Lamp';
 
 function App() {
     const [lampStates, setLampStates] = useState({
@@ -58,8 +58,8 @@ function App() {
             <CoffeePlant />
             <Sofa />
             <TvTable />
-            <LampTable />
-            <Lamp />
+            {/*<LampTable />*/}
+            {/*<Lamp />*/}
             <Tv />
             <CoffeeTable />
             <CoffeePot />
