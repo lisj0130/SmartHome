@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Mvc;
 
-// Test V
 namespace Backend.Controllers
 {
     public class DashboardController : Controller
@@ -17,7 +16,14 @@ namespace Backend.Controllers
         }
 
         //Gör en algoritm för att generera inomhustemperatur och returnera den till vyn
-        public IActionResult InsideTemp() { }
+        public IActionResult InsideTemp()
+        {
+            Random random = new Random();
+            double temperature = Math.Round(18 + random.NextDouble() * 5, 1); 
+
+            // Returnera temperaturen som JSON
+            return Json(new { temperature });
+        }
 
 
         //Skapa en algoritm som beräknar elförbrukningen. Ta antal lampor, inomhustemp och utomhustemp i beaktning.
