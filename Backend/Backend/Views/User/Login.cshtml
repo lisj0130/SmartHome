@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<li class="nav-item">
+    <div id="g_id_onload"
+         data-client_id="111082710624-08savo08j6mm9m627c4ejs4l95dv6il3.apps.googleusercontent.com"
+         data-callback="onSignIn">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+</li>
+
+@section Scripts {
+    <script>
+        function onSignIn(response) {
+            const id_token = response.credential;
+
+            fetch('/User/LoginGoogle', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ idToken: id_token })
+            })
+                .then(res => {
+                    if (res.ok) {
+                        window.location.href = '/Home/Index';
+                    } else {
+                        alert("Inloggning misslyckades.");
+                    }
+                });
+        }
+
+        function signOut() {
+            google.accounts.id.disableAutoSelect();
+            fetch('/User/Logout', { method: 'POST' })
+                .then(() => window.location.href = '/Home/Index');
+        }
+    </script>
+}

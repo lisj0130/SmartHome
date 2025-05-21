@@ -48,6 +48,7 @@ namespace Backend.Controllers
         public IActionResult ElectricityConsumption() 
         {
             // Vad du har förbrukat / String
+            return View();
         }
 
         //Hämta in en lista och visa tidigare loggar

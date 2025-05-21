@@ -90,7 +90,7 @@ namespace Backend.Controllers
                     JObject weatherData = JObject.Parse(response);
                     double temperature = (double)weatherData["main"]["temp"];
 
-                    return Json(new { temperature = temperature, city = city });
+                    return new JsonResult(new { temperature = temperature, city = city });
                 }
                 catch (HttpRequestException e)
                 {
