@@ -25,7 +25,32 @@ namespace Backend.Controllers
         //Skapa en algoritm som beräknar elförbrukningen
         public IActionResult ElectricityConsumption()
         {
-            // Vad du har förbrukat / String
+            var logs = _context.Logs
+                .OrderBy(l => l.TimeStamp)
+                .ToList();
+
+            var totalConsumption = new Dictionary<string, double>();
+
+            for (int i = 0; i < logs.Count - 1; i++)
+            {
+                var currentLog = logs[i];
+                var nextLog = logs[i + 1];
+
+                var duration = (nextLog.TimeStamp - currentLog.TimeStamp).TotalHours;
+
+                // Hitta alla lampor som är på under hela tidsintervallet
+                var lampsStillOn = currentLog.LightsOn.Intersect(nextLog.LightsOn);
+
+                foreach (var lamp in lampsStillOn)
+                {
+                    if (!totalConsumption.ContainsKey(lamp))
+                        totalConsumption[lamp] = 0;
+
+                    totalConsumption[lamp] += duration * 0.04; // 40 watt = 0.04 kW
+                }
+            }
+
+            return Json(totalConsumption);
         }
 
         //Hämta in en lista och visa tidigare loggar (5st)
