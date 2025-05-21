@@ -23,7 +23,7 @@ public class UserController : Controller
     {
         var client = new GoogleJsonWebSignature.ValidationSettings
         {
-            Audience = ["80156721446-94fndvq99j91bmmd4327rn23kh3g5ci0.apps.googleusercontent.com"]
+            Audience = ["111082710624-08savo08j6mm9m627c4ejs4l95dv6il3.apps.googleusercontent.com"]
         };
 
         var payload = await GoogleJsonWebSignature.ValidateAsync(model.IdToken, client);

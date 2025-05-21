@@ -18,10 +18,40 @@
     </div>
 </li>
 
+@* @section Scripts { *@
+@*     <script> *@
+@*         function onSignIn(response) { *@
+@*             const id_token = response.credential; *@
+
+@*             fetch('/User/LoginGoogle', { *@
+@*                 method: 'POST', *@
+@*                 headers: { *@
+@*                     'Content-Type': 'application/json' *@
+@*                 }, *@
+@*                 body: JSON.stringify({ idToken: id_token }) *@
+@*             }) *@
+@*                 .then(res => { *@
+@*                     if (res.ok) { *@
+@*                         window.location.href = '/Home/Index'; *@
+@*                     } else { *@
+@*                         alert("Inloggning misslyckades."); *@
+@*                     } *@
+@*                 }); *@
+@*         } *@
+
+@*         function signOut() { *@
+@*             google.accounts.id.disableAutoSelect(); *@
+@*             fetch('/User/Logout', { method: 'POST' }) *@
+@*                 .then(() => window.location.href = '/Home/Index'); *@
+@*         } *@
+@*     </script> *@
+@* } *@
 @section Scripts {
     <script>
         function onSignIn(response) {
+            console.log("Google response:", response);  // Logga hela responsen från Google
             const id_token = response.credential;
+            console.log("ID Token:", id_token);  // Logga token innan den skickas
 
             fetch('/User/LoginGoogle', {
                 method: 'POST',
@@ -31,11 +61,19 @@
                 body: JSON.stringify({ idToken: id_token })
             })
                 .then(res => {
+                    console.log("Response från backend:", res);
                     if (res.ok) {
                         window.location.href = '/Home/Index';
                     } else {
-                        alert("Inloggning misslyckades.");
+                        res.text().then(text => {
+                            console.error("Inloggning misslyckades:", text); // Logga felmeddelande från backend
+                            alert("Inloggning misslyckades.");
+                        });
                     }
+                })
+                .catch(err => {
+                    console.error("Fetch error:", err); // Logga fetch-fel (nätverk etc)
+                    alert("Ett fel uppstod vid inloggning.");
                 });
         }
 
@@ -46,3 +84,4 @@
         }
     </script>
 }
+
