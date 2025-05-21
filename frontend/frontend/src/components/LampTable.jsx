@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useGLTF } from '@react-three/drei';
 
 export default function LampTable() {
-    const { scene } = useGLTF('/models/lamptable2.glb');
+    const { scene } = useGLTF('/models/lamptable.glb');
 
     useEffect(() => {
         console.log(scene); // Inspektera detta i DevTools för att hitta luckans namn

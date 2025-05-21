@@ -46,10 +46,13 @@ namespace Backend
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
-            builder.Services.AddControllers();
+            builder.Services.AddControllersWithViews();
+            //builder.Services.AddControllers();
             builder.Services.AddSignalR();
             builder.Services.AddDbContext<SmartHomeContext>(options => options.UseInMemoryDatabase("SmartHomeDB"));
+            //builder.Services.AddDataProtection();
+            //builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddSession();
 
             builder.Services.AddCors(options =>
             {
@@ -69,8 +72,13 @@ namespace Backend
 
             app.UseCors();
             app.UseRouting();
+            app.UseSession();
 
             app.UseAuthorization();
+
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=User}/{action=Login}");
 
             app.UseEndpoints(endpoints =>
             {

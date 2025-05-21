@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
-using System.Runtime.Remoting.Contexts;
 
 namespace ChatAppBackend.Hubs
 {
