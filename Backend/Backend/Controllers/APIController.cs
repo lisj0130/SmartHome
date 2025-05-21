@@ -110,7 +110,7 @@ namespace Backend.Controllers
             _context.Logs.Add(log);
             _context.SaveChanges();
 
-            return Json(new { insideTemp, outsideTemp });
+            return new JsonResult(new { insideTemp, outsideTemp });
         }
     }
 }
