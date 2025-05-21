@@ -73,12 +73,16 @@ namespace Backend.Controllers
             return Ok(new { status = "Lampan är släckt", id = id });
         }
 
-        //Hämta temperaturen via web api och returnera den till vyn
-        [HttpGet("OutsideTemp")]
-        public async Task<IActionResult> OutsideTemp()
+        //Hämta temperaturen ute via web api samt temperturen inne som slupas. Detta till log
+        [HttpGet("GenerateLog")]
+        public async Task<IActionResult> GenerateLog()
         {
-            string apiKey = "141d0705b70227498aac566b4b862bdb";
+            Random random = new Random();
+            double insideTemp = Math.Round(18 + random.NextDouble() * 5, 1);
+
+            double outsideTemp = 0;
             string city = "Umeå";
+            string apiKey = "141d0705b70227498aac566b4b862bdb";
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
 
             using (HttpClient client = new HttpClient())
@@ -86,17 +90,27 @@ namespace Backend.Controllers
                 try
                 {
                     var response = await client.GetStringAsync(url);
-
                     JObject weatherData = JObject.Parse(response);
-                    double temperature = (double)weatherData["main"]["temp"];
-
-                    return Json(new { temperature = temperature, city = city });
+                    outsideTemp = (double)weatherData["main"]["temp"];
                 }
-                catch (HttpRequestException e)
+                catch
                 {
-                    return StatusCode(500, $"Fel vid hämtning av temperatur: {e.Message}");
+                    outsideTemp = 10; 
                 }
             }
+
+            var log = new Log
+            {
+                InsideTemp = insideTemp,
+                OutsideTemp = outsideTemp,
+                LightsOn = new List<string>(), 
+                TimeStamp = DateTime.UtcNow
+            };
+
+            _context.Logs.Add(log);
+            _context.SaveChanges();
+
+            return Json(new { insideTemp, outsideTemp });
         }
     }
 }
