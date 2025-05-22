@@ -1,4 +1,4 @@
-using System.Diagnostics;
+Ôªøusing System.Diagnostics;
 using Backend.Models;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -23,7 +23,7 @@ namespace Backend.Controllers
         public async Task<IActionResult> Dashboard()
         {
             string apiKey = "141d0705b70227498aac566b4b862bdb";
-            string city = "UmeÂ";
+            string city = "Ume√•";
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={Uri.EscapeDataString(city)}&appid={apiKey}&units=metric";
 
             double outsideTemp = 0;
@@ -38,7 +38,7 @@ namespace Backend.Controllers
                 }
                 catch (HttpRequestException e)
                 {
-                    Console.WriteLine("Fel vid h‰mtning av temperatur: " + e.Message);
+                    Console.WriteLine("Fel vid h√§mtning av temperatur: " + e.Message);
                 }
             }
 
@@ -65,7 +65,7 @@ namespace Backend.Controllers
             return insideTemperature;
         }
 
-        //Skapa en algoritm som ber‰knar elfˆrbrukningen
+        //Skapa en algoritm som ber√§knar elf√∂rbrukningen
         private Dictionary<string, double> ElectricityConsumption()
         {
             var logs = _context.Logs
@@ -94,7 +94,7 @@ namespace Backend.Controllers
             return totalConsumption;
         }
 
-        //H‰mta in en lista och visa tidigare loggar (5st)
+        //H√§mta in en lista och visa tidigare loggar (5st)
         public IActionResult ShowPreviousLogs()
         {
             var logs = _context.Logs
@@ -109,7 +109,7 @@ namespace Backend.Controllers
         public async Task<IActionResult> OutsideTemperature()
         {
             string apiKey = "141d0705b70227498aac566b4b862bdb";
-            string city = "UmeÂ";
+            string city = "Ume√•";
             string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
 
             using (HttpClient client = new HttpClient())
@@ -125,7 +125,7 @@ namespace Backend.Controllers
                 }
                 catch (HttpRequestException e)
                 {
-                    return StatusCode(500, $"Fel vid h‰mtning av temperatur: {e.Message}");
+                    return StatusCode(500, $"Fel vid h√§mtning av temperatur: {e.Message}");
                 }
             }
         } */

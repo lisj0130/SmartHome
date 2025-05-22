@@ -40,4 +40,3 @@ namespace ChatAppBackend.Hubs
         //Lägg till eftersom
     }
 }
-
