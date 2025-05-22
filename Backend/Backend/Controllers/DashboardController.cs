@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace Backend.Controllers
 {
@@ -70,5 +71,44 @@ namespace Backend.Controllers
 
             return Json(logs);
         }
+
+
+
+
+        // ENKLA FUNKTIONER FÖR INNE OCH UTE TEMPERATUR 
+        /*
+        private string InsideTemperature()
+        {
+            Random random = new Random();
+            double insideTemperature = Math.Round(18 + random.NextDouble() * 5, 1);
+
+            return insideTemperature.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public async Task<IActionResult> OutsideTemperature()
+        {
+            string apiKey = "141d0705b70227498aac566b4b862bdb";
+            string city = "Umeå";
+            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
+
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    var response = await client.GetStringAsync(url);
+
+                    JObject weatherData = JObject.Parse(response);
+                    double temperature = (double)weatherData["main"]["temp"];
+
+                    return Json(new { temperature = temperature, city = city });
+                }
+                catch (HttpRequestException e)
+                {
+                    return StatusCode(500, $"Fel vid hämtning av temperatur: {e.Message}");
+                }
+            }
+        }
+        */
+
     }
 }
