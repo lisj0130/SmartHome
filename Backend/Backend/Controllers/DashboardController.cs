@@ -22,24 +22,24 @@ namespace Backend.Controllers
         //Visa vyn
         public async Task<IActionResult> Dashboard()
         {
-            var httpClient = _httpClientFactory.CreateClient();
-            string temperatureApiUrl = "https://localhost:5001/api/API/OutsideTemperature";
+            string apiKey = "141d0705b70227498aac566b4b862bdb";
+            string city = "Umeå";
+            string url = $"https://api.openweathermap.org/data/2.5/weather?q={Uri.EscapeDataString(city)}&appid={apiKey}&units=metric";
 
             double outsideTemp = 0;
 
-            try
+            using (HttpClient client = new HttpClient())
             {
-                var response = await httpClient.GetAsync(temperatureApiUrl);
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    var jsonObj = JObject.Parse(json);
-                    outsideTemp = (double)jsonObj["temperature"];
+                    var response = await client.GetStringAsync(url);
+                    JObject weatherData = JObject.Parse(response);
+                    outsideTemp = (double)weatherData["main"]["temp"];
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Fel vid hämtning av utomhustemperatur: " + ex.Message);
+                catch (HttpRequestException e)
+                {
+                    Console.WriteLine("Fel vid hämtning av temperatur: " + e.Message);
+                }
             }
 
             var newLog = new Log
