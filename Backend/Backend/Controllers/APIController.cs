@@ -73,6 +73,32 @@ namespace Backend.Controllers
             return Ok(new { status = "Lampan är släckt", id = id });
         }
 
+        [HttpGet("OutsideTemperature")]
+        public async Task<IActionResult> OutsideTemperature()
+        {
+            string apiKey = "141d0705b70227498aac566b4b862bdb";
+            string city = "Umeå";
+            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
+
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    var response = await client.GetStringAsync(url);
+
+                    JObject weatherData = JObject.Parse(response);
+                    double temperature = (double)weatherData["main"]["temp"];
+
+                    return Ok(new { temperature, city });
+                }
+                catch (HttpRequestException e)
+                {
+                    return StatusCode(500, $"Fel vid hämtning av temperatur: {e.Message}");
+                }
+            }
+        }
+
+
         //Hämta temperaturen ute via web api samt temperturen inne som slupas. Detta till log
         [HttpGet("GenerateLog")]
         public async Task<IActionResult> GenerateLog()

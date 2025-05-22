@@ -11,25 +11,58 @@ namespace Backend.Controllers
     public class DashboardController : Controller
     {
         private readonly SmartHomeContext _context;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public DashboardController(SmartHomeContext context)
+        public DashboardController(SmartHomeContext context, IHttpClientFactory httpClientFactory)
         {
             _context = context;
+            _httpClientFactory = httpClientFactory;
         }
 
         //Visa vyn
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            var logs = _context.Logs
-                .OrderByDescending(l => l.TimeStamp)
-                .Take(5)
-                .ToList();
+            var httpClient = _httpClientFactory.CreateClient();
+            string temperatureApiUrl = "https://localhost:5001/api/API/OutsideTemperature";
 
-            var totalConsumption = ElectricityConsumption();
+            double outsideTemp = 0;
 
-            ViewData["Consumption"] = totalConsumption;
+            try
+            {
+                var response = await httpClient.GetAsync(temperatureApiUrl);
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    var jsonObj = JObject.Parse(json);
+                    outsideTemp = (double)jsonObj["temperature"];
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Fel vid hämtning av utomhustemperatur: " + ex.Message);
+            }
 
-            return View(logs); 
+            var newLog = new Log
+            {
+                InsideTemp = InsideTemperature(),
+                OutsideTemp = outsideTemp,
+                TimeStamp = DateTime.UtcNow
+            };
+
+            _context.Logs.Add(newLog);
+            _context.SaveChanges();
+
+            var logs = _context.Logs.OrderByDescending(l => l.TimeStamp).ToList();
+
+            return View(logs); // Skickar listan av loggar till vyn
+        }
+
+        private double InsideTemperature()
+        {
+            Random random = new Random();
+            double insideTemperature = Math.Round(18 + random.NextDouble() * 5, 1);
+
+            return insideTemperature;
         }
 
         //Skapa en algoritm som beräknar elförbrukningen
@@ -72,19 +105,7 @@ namespace Backend.Controllers
             return Json(logs);
         }
 
-
-
-
-        // ENKLA FUNKTIONER FÖR INNE OCH UTE TEMPERATUR 
         /*
-        private string InsideTemperature()
-        {
-            Random random = new Random();
-            double insideTemperature = Math.Round(18 + random.NextDouble() * 5, 1);
-
-            return insideTemperature.ToString(CultureInfo.InvariantCulture);
-        }
-
         public async Task<IActionResult> OutsideTemperature()
         {
             string apiKey = "141d0705b70227498aac566b4b862bdb";
@@ -107,8 +128,7 @@ namespace Backend.Controllers
                     return StatusCode(500, $"Fel vid hämtning av temperatur: {e.Message}");
                 }
             }
-        }
-        */
+        } */
 
     }
 }

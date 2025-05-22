@@ -15,6 +15,7 @@ namespace Backend
             //builder.Services.AddDataProtection();
             //builder.Services.AddDistributedMemoryCache();
             builder.Services.AddSession();
+            builder.Services.AddHttpClient();
 
             builder.Services.AddCors(options =>
             {
