@@ -1,14 +1,14 @@
 ﻿@model List<Backend.Models.Log>
 
-@{
+    @{
     ViewData["Title"] = "Dashboard";
     var latestLog = Model.FirstOrDefault();
     var allLogs = Model;
-}
+    }
 
-<h1>Dashboard</h1>
+    <h1>Dashboard</h1>
 
-@if (latestLog != null)
+    @if (latestLog != null)
 {
     <h3>Temperaturer</h3>
     <ul>
@@ -17,8 +17,8 @@
     </ul>
 }
 
-<h3>Elförbrukning</h3>
-@if (ViewData["Consumption"] is Dictionary<string, double> consumption)
+    <h3>Elförbrukning</h3>
+    @if (ViewData["Consumption"] is Dictionary<string, double> consumption)
 {
     <table>
         <thead>
@@ -30,10 +30,10 @@
         <tbody>
             @foreach (var kvp in consumption)
             {
-                <tr>
-                    <td>@kvp.Key</td>
-                    <td>@kvp.Value.ToString("F2")</td>
-                </tr>
+            <tr>
+                <td>@kvp.Key</td>
+                <td>@kvp.Value.ToString("F2")</td>
+            </tr>
             }
         </tbody>
     </table>
@@ -44,18 +44,18 @@ else
 }
 
 
-<h3>Senaste loggar (5 st)</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Tid</th>
-            <th>Inne °C</th>
-            <th>Ute °C</th>
-            <th>Lampor tända</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var log in allLogs.Take(5))
+    <h3>Senaste loggar (5 st)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Tid</th>
+                <th>Inne °C</th>
+                <th>Ute °C</th>
+                <th>Lampor tända</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in allLogs.Take(5))
         {
             <tr>
                 <td>@log.TimeStamp.ToLocalTime()</td>
@@ -64,5 +64,52 @@ else
                 <td>@string.Join(", ", log.LightsOn)</td>
             </tr>
         }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+
+    <h3>Styr lampor</h3>
+    <div>
+        <button id="btn-1" onclick="toggleLight(1)">Släck Taklampa</button>
+        <button id="btn-2" onclick="toggleLight(2)">Släck Golvlampa</button>
+        <button id="btn-3" onclick="toggleLight(3)">Släck Dekorationslampa</button>
+    </div>
+
+
+    @section Scripts {
+        <script>
+            const lampStates = {
+                1: true,
+                2: true,
+                3: true
+            };
+
+            async function toggleLight(id) {
+                const isOn = lampStates[id];
+                const endpoint = isOn
+                    ? `/api/API/LightsOff/${id}`
+                    : `/api/API/LightsOn/${id}`;
+
+                try {
+                    const response = await fetch(endpoint, { method: 'POST' });
+
+                    if (response.ok) {
+                        lampStates[id] = !isOn;
+
+                        const button = document.getElementById(`btn-${id}`);
+                        if (button) {
+                            const label = lampStates[id] ? "Släck" : "Tänd";
+                            const lampName = button.textContent.split(" ").slice(1).join(" ");
+                            button.textContent = `${label} ${lampName}`;
+                        }
+                    } else {
+                        alert("Något gick fel.");
+                    }
+                } catch (error) {
+                    console.error("Fel vid toggleLight:", error);
+                    alert("Kunde inte skicka begäran.");
+                }
+            }
+        </script>
+    }
+
+
