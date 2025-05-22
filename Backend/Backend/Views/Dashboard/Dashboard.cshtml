@@ -15,6 +15,23 @@
         <li><strong>Inomhus:</strong> @latestLog.InsideTemp °C</li>
         <li><strong>Utomhus:</strong> @latestLog.OutsideTemp °C</li>
     </ul>
+
+        <h3>Tända lampor</h3>
+
+    @if (latestLog != null && latestLog.LightsOn.Any())
+    {
+            <ul>
+            @foreach (var lamp in latestLog.LightsOn)
+            {
+                        <li>@lamp</li>
+            }
+            </ul>
+    }
+    else
+    {
+            <p>Inga lampor är tända just nu.</p>
+    }
+
 }
 
     <h3>Elförbrukning</h3>
