@@ -19,11 +19,20 @@ namespace Backend.Controllers
         //Visa vyn
         public IActionResult Dashboard()
         {
-            return View();
+            var logs = _context.Logs
+                .OrderByDescending(l => l.TimeStamp)
+                .Take(5)
+                .ToList();
+
+            var totalConsumption = ElectricityConsumption();
+
+            ViewData["Consumption"] = totalConsumption;
+
+            return View(logs); 
         }
 
         //Skapa en algoritm som beräknar elförbrukningen
-        public IActionResult ElectricityConsumption()
+        private Dictionary<string, double> ElectricityConsumption()
         {
             var logs = _context.Logs
                 .OrderBy(l => l.TimeStamp)
@@ -38,19 +47,17 @@ namespace Backend.Controllers
 
                 var duration = (nextLog.TimeStamp - currentLog.TimeStamp).TotalHours;
 
-                // Hitta alla lampor som är på under hela tidsintervallet
                 var lampsStillOn = currentLog.LightsOn.Intersect(nextLog.LightsOn);
-
                 foreach (var lamp in lampsStillOn)
                 {
                     if (!totalConsumption.ContainsKey(lamp))
                         totalConsumption[lamp] = 0;
 
-                    totalConsumption[lamp] += duration * 0.04; // 40 watt = 0.04 kW
+                    totalConsumption[lamp] += duration * 0.04; // 40 watt = 0.04 kWh
                 }
             }
 
-            return Json(totalConsumption);
+            return totalConsumption;
         }
 
         //Hämta in en lista och visa tidigare loggar (5st)

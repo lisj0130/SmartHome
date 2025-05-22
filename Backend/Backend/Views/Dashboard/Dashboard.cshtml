@@ -1,0 +1,68 @@
+﻿@model List<Backend.Models.Log>
+
+@{
+    ViewData["Title"] = "Dashboard";
+    var latestLog = Model.FirstOrDefault();
+    var allLogs = Model;
+}
+
+<h1>Dashboard</h1>
+
+@if (latestLog != null)
+{
+    <h3>Temperaturer</h3>
+    <ul>
+        <li><strong>Inomhus:</strong> @latestLog.InsideTemp °C</li>
+        <li><strong>Utomhus:</strong> @latestLog.OutsideTemp °C</li>
+    </ul>
+}
+
+<h3>Elförbrukning</h3>
+@if (ViewData["Consumption"] is Dictionary<string, double> consumption)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Lampa</th>
+                <th>Förbrukning (kWh)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var kvp in consumption)
+            {
+                <tr>
+                    <td>@kvp.Key</td>
+                    <td>@kvp.Value.ToString("F2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Ingen elförbrukningsdata tillgänglig.</p>
+}
+
+
+<h3>Senaste loggar (5 st)</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Tid</th>
+            <th>Inne °C</th>
+            <th>Ute °C</th>
+            <th>Lampor tända</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in allLogs.Take(5))
+        {
+            <tr>
+                <td>@log.TimeStamp.ToLocalTime()</td>
+                <td>@log.InsideTemp</td>
+                <td>@log.OutsideTemp</td>
+                <td>@string.Join(", ", log.LightsOn)</td>
+            </tr>
+        }
+    </tbody>
+</table>
