@@ -11,12 +11,10 @@ namespace Backend.Controllers
     public class DashboardController : Controller
     {
         private readonly SmartHomeContext _context;
-        private readonly IHttpClientFactory _httpClientFactory;
 
-        public DashboardController(SmartHomeContext context, IHttpClientFactory httpClientFactory)
+        public DashboardController(SmartHomeContext context)
         {
             _context = context;
-            _httpClientFactory = httpClientFactory;
         }
 
         //Visa vyn
@@ -104,31 +102,6 @@ namespace Backend.Controllers
 
             return Json(logs);
         }
-
-        /*
-        public async Task<IActionResult> OutsideTemperature()
-        {
-            string apiKey = "141d0705b70227498aac566b4b862bdb";
-            string city = "Umeå";
-            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={apiKey}&units=metric";
-
-            using (HttpClient client = new HttpClient())
-            {
-                try
-                {
-                    var response = await client.GetStringAsync(url);
-
-                    JObject weatherData = JObject.Parse(response);
-                    double temperature = (double)weatherData["main"]["temp"];
-
-                    return Json(new { temperature = temperature, city = city });
-                }
-                catch (HttpRequestException e)
-                {
-                    return StatusCode(500, $"Fel vid hämtning av temperatur: {e.Message}");
-                }
-            }
-        } */
 
     }
 }
