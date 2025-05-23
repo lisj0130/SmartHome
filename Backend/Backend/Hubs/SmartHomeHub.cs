@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using System;
+using Backend.Models;
 
 namespace ChatAppBackend.Hubs
 {
@@ -37,6 +35,9 @@ namespace ChatAppBackend.Hubs
             await Clients.All.SendAsync("TurnOffLight", id, 0);
         }
 
-        //Lägg till eftersom
+        public async Task UpdateLog(Log updatedLog)
+        {
+            await Clients.All.SendAsync("ReceiveLogUpdate", updatedLog);
+        }
     }
 }

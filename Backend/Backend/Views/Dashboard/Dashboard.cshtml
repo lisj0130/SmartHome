@@ -1,41 +1,39 @@
 ﻿@model List<Backend.Models.Log>
 
-    @{
+@{
     ViewData["Title"] = "Dashboard";
     var latestLog = Model.FirstOrDefault();
     var allLogs = Model;
-    }
+}
 
-    <h1>Dashboard</h1>
+<h1>Dashboard</h1>
 
-    @if (latestLog != null)
+@if (latestLog != null)
 {
     <h3>Temperaturer</h3>
     <ul>
-        <li><strong>Inomhus:</strong> @latestLog.InsideTemp °C</li>
-        <li><strong>Utomhus:</strong> @latestLog.OutsideTemp °C</li>
+        <li><strong>Inomhus:</strong> <span id="inside-temp">@latestLog.InsideTemp</span></li>
+        <li><strong>Utomhus:</strong> <span id="outside-temp">@latestLog.OutsideTemp</span></li>
     </ul>
 
     <h3>Tända lampor</h3>
-
-    @if (latestLog != null && latestLog.LightsOn.Any())
-    {
-    <ul>
-        @foreach (var lamp in latestLog.LightsOn)
+    <ul id="lamp-list">
+        @if (latestLog.LightsOn.Any())
+        {
+            foreach (var lamp in latestLog.LightsOn)
             {
-        <li>@lamp</li>
+                <li>@lamp</li>
             }
+        }
+        else
+        {
+            <li>Inga lampor är tända just nu.</li>
+        }
     </ul>
-    }
-    else
-    {
-    <p>Inga lampor är tända just nu.</p>
-    }
-
 }
 
-    <h3>Elförbrukning</h3>
-    @if (ViewData["Consumption"] is Dictionary<string, double> consumption)
+<h3>Elförbrukning</h3>
+@if (ViewData["Consumption"] is Dictionary<string, double> consumption)
 {
     <table>
         <thead>
@@ -61,18 +59,18 @@ else
 }
 
 
-    <h3>Senaste loggar (5 st)</h3>
-    <table>
-        <thead>
-            <tr>
-                <th>Tid</th>
-                <th>Inne °C</th>
-                <th>Ute °C</th>
-                <th>Lampor tända</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var log in allLogs.Take(5))
+<h3>Senaste loggar (5 st)</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Tid</th>
+            <th>Inne °C</th>
+            <th>Ute °C</th>
+            <th>Lampor tända</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var log in allLogs.Take(5))
         {
             <tr>
                 <td>@log.TimeStamp.ToLocalTime()</td>
@@ -81,50 +79,85 @@ else
                 <td>@string.Join(", ", log.LightsOn)</td>
             </tr>
         }
-        </tbody>
-    </table>
+     </tbody>
+</table>
 
-    <h3>Styr lampor</h3>
-    <div>
-        <button id="btn-1" onclick="toggleLight(1)">Släck Taklampa</button>
-        <button id="btn-2" onclick="toggleLight(2)">Släck Golvlampa</button>
-        <button id="btn-3" onclick="toggleLight(3)">Släck Dekorationslampa</button>
-    </div>
+<h3>Styr lampor</h3>
+<div>
+    <button id="btn-1" onclick="toggleLight(1)">Släck Taklampa</button>
+    <button id="btn-2" onclick="toggleLight(2)">Släck Golvlampa</button>
+    <button id="btn-3" onclick="toggleLight(3)">Släck Dekorationslampa</button>
+</div>
 
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7285/smartHomeHub")
+            .withAutomaticReconnect()
+            .build();
 
-    @section Scripts {
-        <script>
-            const lampStates = {
-                1: true,
-                2: true,
-                3: true
-            };
+        connection.on("RefreshDashboard", () => {
+            fetch("/Dashboard/ShowPreviousLogs")
+                .then(response => response.json())
+                .then(data => {
+                    const latest = data[0];
 
-            async function toggleLight(id) {
-                const isOn = lampStates[id];
-                const endpoint = isOn
-                    ? `/api/API/LightsOff/${id}`
-                    : `/api/API/LightsOn/${id}`;
+                    document.querySelector("#inside-temp").textContent = latest.insideTemp.toFixed(1) + " °C";
+                    document.querySelector("#outside-temp").textContent = latest.outsideTemp.toFixed(1) + " °C";
 
-                try {
-                    const response = await fetch(endpoint, { method: 'POST' });
+                    const lampList = document.querySelector("#lamp-list");
+                    lampList.innerHTML = "";
 
-                    if (response.ok) {
-                        lampStates[id] = !isOn;
-
-                        const button = document.getElementById(`btn-${id}`);
-                        if (button) {
-                            const label = lampStates[id] ? "Släck" : "Tänd";
-                            const lampName = button.textContent.split(" ").slice(1).join(" ");
-                            button.textContent = `${label} ${lampName}`;
-                        }
+                    if (latest.lightsOn.length > 0) {
+                        latest.lightsOn.forEach(lamp => {
+                            const li = document.createElement("li");
+                            li.textContent = lamp;
+                            lampList.appendChild(li);
+                        });
                     } else {
-                        alert("Något gick fel.");
+                        lampList.innerHTML = "<li>Inga lampor är tända just nu.</li>";
                     }
-                } catch (error) {
-                    console.error("Fel vid toggleLight:", error);
-                    alert("Kunde inte skicka begäran.");
+                });
+        });
+
+        connection.start()
+            .then(() => {
+                console.log("SignalR-anslutning klar");
+            })
+            .catch(err => console.error("Fel vid SignalR:", err));
+
+        const lampStates = {
+            1: true,
+            2: true,
+            3: true
+        };
+
+        async function toggleLight(id) {
+            const isOn = lampStates[id];
+            const endpoint = isOn
+                ? `/api/API/LightsOff/${id}`
+                : `/api/API/LightsOn/${id}`;
+
+            try {
+                const response = await fetch(endpoint, { method: 'POST' });
+
+                if (response.ok) {
+                    lampStates[id] = !isOn;
+
+                    const button = document.getElementById(`btn-${id}`);
+                    if (button) {
+                        const label = lampStates[id] ? "Släck" : "Tänd";
+                        const lampName = button.textContent.split(" ").slice(1).join(" ");
+                        button.textContent = `${label} ${lampName}`;
+                    }
+                } else {
+                    alert("Något gick fel.");
                 }
+            } catch (error) {
+                console.error("Fel vid toggleLight:", error);
+                alert("Kunde inte skicka begäran.");
             }
-        </script>
-    }
+        }
+    </script>
+}

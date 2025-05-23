@@ -2,7 +2,6 @@ using Backend.Models;
 using ChatAppBackend.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json.Linq;
 
 namespace Backend.Controllers
 {
@@ -41,6 +40,8 @@ namespace Backend.Controllers
             _context.SaveChanges();
             await _hubContext.Clients.All.SendAsync("TurnOnLight", id, 1);
 
+            await _hubContext.Clients.All.SendAsync("RefreshDashboard");
+
             return Ok(new { status = "Lampan är tänd", id = id });
         }
 
@@ -69,6 +70,8 @@ namespace Backend.Controllers
             _context.SaveChanges();
 
             await _hubContext.Clients.All.SendAsync("TurnOffLight", id, 0);
+
+            await _hubContext.Clients.All.SendAsync("RefreshDashboard");
 
             return Ok(new { status = "Lampan är släckt", id = id });
         }

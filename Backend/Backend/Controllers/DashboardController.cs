@@ -1,10 +1,6 @@
-﻿using System.Diagnostics;
-using Backend.Models;
-using System.Net.Http;
-using System.Threading.Tasks;
+﻿using Backend.Models;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
 
 namespace Backend.Controllers
 {
