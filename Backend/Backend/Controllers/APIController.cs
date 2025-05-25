@@ -18,59 +18,135 @@ namespace Backend.Controllers
             _context = context;
         }
 
-        //Skicka till react att lampan ska tändas
+        ////Skicka till react att lampan ska tändas
+        //[HttpPost("LightsOn/{id}")]
+        //public async Task<IActionResult> LightsOn(int id)
+        //{
+        //    string lightId = $"Light{id}";
+
+        //    // Hämta senaste loggen eller skapa ny
+        //    var latestLog = _context.Logs.OrderByDescending(l => l.TimeStamp).FirstOrDefault();
+
+        //    if (latestLog == null || (DateTime.UtcNow - latestLog.TimeStamp).TotalMinutes > 1)
+        //    {
+        //        latestLog = new Log();
+        //        _context.Logs.Add(latestLog);
+        //    }
+
+        //    if (!latestLog.LightsOn.Contains(lightId))
+        //        latestLog.LightsOn.Add(lightId);
+
+        //    latestLog.TimeStamp = DateTime.UtcNow;
+        //    _context.SaveChanges();
+        //    await _hubContext.Clients.All.SendAsync("TurnOnLight", id, 1);
+
+        //    await _hubContext.Clients.All.SendAsync("RefreshDashboard");
+
+        //    return Ok(new { status = "Lampan är tänd", id = id });
+        //}
+
+        ////Skicka till react att lampan ska släckas
+        //[HttpPost("LightsOff/{id}")]
+        //public async Task<IActionResult> LightsOff(int id)
+        //{
+        //    string lightId = $"Light{id}";
+
+        //    // Hämta senaste logg eller skapa en ny om det gått för lång tid
+        //    var latestLog = _context.Logs
+        //        .OrderByDescending(l => l.TimeStamp)
+        //        .FirstOrDefault();
+
+        //    if (latestLog == null || (DateTime.UtcNow - latestLog.TimeStamp).TotalMinutes > 1)
+        //    {
+        //        latestLog = new Log();
+        //        _context.Logs.Add(latestLog);
+        //    }
+
+        //    // Ta bort lampan om den är tänd
+        //    if (latestLog.LightsOn.Contains(lightId))
+        //        latestLog.LightsOn.Remove(lightId);
+
+        //    latestLog.TimeStamp = DateTime.UtcNow;
+        //    _context.SaveChanges();
+
+        //    await _hubContext.Clients.All.SendAsync("TurnOffLight", id, 0);
+
+        //    await _hubContext.Clients.All.SendAsync("RefreshDashboard");
+
+        //    return Ok(new { status = "Lampan är släckt", id = id });
+        //}
         [HttpPost("LightsOn/{id}")]
         public async Task<IActionResult> LightsOn(int id)
         {
             string lightId = $"Light{id}";
 
-            // Hämta senaste loggen eller skapa ny
-            var latestLog = _context.Logs.OrderByDescending(l => l.TimeStamp).FirstOrDefault();
+            var previousLog = _context.Logs
+                .OrderByDescending(l => l.TimeStamp)
+                .FirstOrDefault();
 
-            if (latestLog == null || (DateTime.UtcNow - latestLog.TimeStamp).TotalMinutes > 1)
+            Log latestLog;
+
+            if (previousLog == null || (DateTime.UtcNow - previousLog.TimeStamp).TotalMinutes > 1)
             {
-                latestLog = new Log();
+                latestLog = new Log
+                {
+                    TimeStamp = DateTime.UtcNow,
+                    InsideTemp = previousLog?.InsideTemp ?? 22.0,
+                    OutsideTemp = previousLog?.OutsideTemp ?? 5.0
+                };
                 _context.Logs.Add(latestLog);
+            }
+            else
+            {
+                latestLog = previousLog;
+                latestLog.TimeStamp = DateTime.UtcNow;
             }
 
             if (!latestLog.LightsOn.Contains(lightId))
                 latestLog.LightsOn.Add(lightId);
 
-            latestLog.TimeStamp = DateTime.UtcNow;
             _context.SaveChanges();
-            await _hubContext.Clients.All.SendAsync("TurnOnLight", id, 1);
 
+            await _hubContext.Clients.All.SendAsync("TurnOnLight", id, 1);
             await _hubContext.Clients.All.SendAsync("RefreshDashboard");
 
             return Ok(new { status = "Lampan är tänd", id = id });
         }
 
-        //Skicka till react att lampan ska släckas
+
         [HttpPost("LightsOff/{id}")]
         public async Task<IActionResult> LightsOff(int id)
         {
             string lightId = $"Light{id}";
 
-            // Hämta senaste logg eller skapa en ny om det gått för lång tid
-            var latestLog = _context.Logs
+            var previousLog = _context.Logs
                 .OrderByDescending(l => l.TimeStamp)
                 .FirstOrDefault();
 
-            if (latestLog == null || (DateTime.UtcNow - latestLog.TimeStamp).TotalMinutes > 1)
+            Log latestLog;
+
+            if (previousLog == null || (DateTime.UtcNow - previousLog.TimeStamp).TotalMinutes > 1)
             {
-                latestLog = new Log();
+                latestLog = new Log
+                {
+                    TimeStamp = DateTime.UtcNow,
+                    InsideTemp = previousLog?.InsideTemp ?? 22.0,
+                    OutsideTemp = previousLog?.OutsideTemp ?? 5.0
+                };
                 _context.Logs.Add(latestLog);
             }
+            else
+            {
+                latestLog = previousLog;
+                latestLog.TimeStamp = DateTime.UtcNow;
+            }
 
-            // Ta bort lampan om den är tänd
             if (latestLog.LightsOn.Contains(lightId))
                 latestLog.LightsOn.Remove(lightId);
 
-            latestLog.TimeStamp = DateTime.UtcNow;
             _context.SaveChanges();
 
             await _hubContext.Clients.All.SendAsync("TurnOffLight", id, 0);
-
             await _hubContext.Clients.All.SendAsync("RefreshDashboard");
 
             return Ok(new { status = "Lampan är släckt", id = id });

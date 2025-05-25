@@ -32,7 +32,7 @@
     </ul>
 }
 
-<h3>Elförbrukning</h3>
+@*<h3>Elförbrukning</h3>
 @if (ViewData["Consumption"] is Dictionary<string, double> consumption)
 {
     <table>
@@ -56,7 +56,7 @@
 else
 {
     <p>Ingen elförbrukningsdata tillgänglig.</p>
-}
+}*@
 
 
 <h3>Senaste loggar (5 st)</h3>
@@ -93,7 +93,8 @@ else
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
     <script>
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl("https://localhost:7285/smartHomeHub")
+            //.withUrl("https://localhost:7285/smartHomeHub") //Valters
+            .withUrl("http://localhost:5186/smartHomeHub")
             .withAutomaticReconnect()
             .build();
 
@@ -118,7 +119,37 @@ else
                     } else {
                         lampList.innerHTML = "<li>Inga lampor är tända just nu.</li>";
                     }
+
+
+
+
+                    const tbody = document.querySelector("table tbody");
+                    tbody.innerHTML = "";
+
+                    data.forEach(log => {
+                        const tr = document.createElement("tr");
+
+                        const tdTime = document.createElement("td");
+                        tdTime.textContent = new Date(log.timeStamp).toLocaleString();
+
+                        const tdInside = document.createElement("td");
+                        tdInside.textContent = log.insideTemp.toFixed(1);
+
+                        const tdOutside = document.createElement("td");
+                        tdOutside.textContent = log.outsideTemp.toFixed(1);
+
+                        const tdLights = document.createElement("td");
+                        tdLights.textContent = log.lightsOn.join(", ");
+
+                        tr.appendChild(tdTime);
+                        tr.appendChild(tdInside);
+                        tr.appendChild(tdOutside);
+                        tr.appendChild(tdLights);
+
+                        tbody.appendChild(tr);
+                    });
                 });
+
         });
 
         connection.start()
